@@ -335,6 +335,7 @@ func (c *clientDealEnvironment) OpenDataTransfer(ctx context.Context, to peer.ID
 		}
 	}
 
+	fmt.Printf("Jim go-fil-markets client OpenDataTransfer to: %v proposal: %v\n", to, proposal)
 	return c.c.dataTransfer.OpenPullDataChannel(ctx, to, proposal, proposal.PayloadCID, sel)
 }
 
