@@ -1,3 +1,5 @@
+// +build ignore
+
 package providerstates_test
 
 import (

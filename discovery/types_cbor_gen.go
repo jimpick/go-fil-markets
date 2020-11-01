@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	retrievalmarket "github.com/filecoin-project/go-fil-markets/retrievalmarket"
+	retrievalmarket "github.com/filecoin-project/go-fil-markets/retrievalmarket/apitypes"
 	cbg "github.com/whyrusleeping/cbor-gen"
 	xerrors "golang.org/x/xerrors"
 )

@@ -16,7 +16,7 @@ import (
 
 	"github.com/filecoin-project/go-fil-markets/discovery"
 	"github.com/filecoin-project/go-fil-markets/discovery/migrations"
-	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
+	retrievalmarket "github.com/filecoin-project/go-fil-markets/retrievalmarket/apitypes"
 	"github.com/filecoin-project/go-fil-markets/shared"
 )
 
