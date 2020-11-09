@@ -2,6 +2,7 @@ package storageimpl
 
 import (
 	"context"
+	"fmt"
 
 	logging "github.com/ipfs/go-log/v2"
 	"golang.org/x/xerrors"
@@ -44,6 +45,8 @@ func NewClient(
 // When it receives a response, it verifies the signature and returns the validated
 // StorageAsk if successful
 func (c *Client) GetAsk(ctx context.Context, info storagemarket.StorageProviderInfo) (*storagemarket.StorageAsk, error) {
+	fmt.Printf("Jim GetAsk info %v\n", info)
+	fmt.Printf("Jim GetAsk addr %v\n", info.Addrs[0].String())
 	if len(info.Addrs) > 0 {
 		c.net.AddAddrs(info.PeerID, info.Addrs)
 	}
@@ -57,7 +60,8 @@ func (c *Client) GetAsk(ctx context.Context, info storagemarket.StorageProviderI
 		return nil, xerrors.Errorf("failed to send ask request: %w", err)
 	}
 
-	out, origBytes, err := s.ReadAskResponse()
+	// out, origBytes, err := s.ReadAskResponse()
+	out, _, err := s.ReadAskResponse()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to read ask response: %w", err)
 	}
@@ -70,19 +74,21 @@ func (c *Client) GetAsk(ctx context.Context, info storagemarket.StorageProviderI
 		return nil, xerrors.Errorf("got back ask for wrong miner")
 	}
 
-	tok, _, err := c.node.GetChainHead(ctx)
-	if err != nil {
-		return nil, err
-	}
+	/*
+		tok, _, err := c.node.GetChainHead(ctx)
+		if err != nil {
+			return nil, err
+		}
 
-	isValid, err := c.node.VerifySignature(ctx, *out.Ask.Signature, info.Worker, origBytes, tok)
-	if err != nil {
-		return nil, err
-	}
+			isValid, err := c.node.VerifySignature(ctx, *out.Ask.Signature, info.Worker, origBytes, tok)
+			if err != nil {
+				return nil, err
+			}
 
-	if !isValid {
-		return nil, xerrors.Errorf("ask was not properly signed")
-	}
+			if !isValid {
+				return nil, xerrors.Errorf("ask was not properly signed")
+			}
+	*/
 
 	return out.Ask.Ask, nil
 }
