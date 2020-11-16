@@ -2,8 +2,10 @@ package network
 
 import (
 	"context"
+	"io"
 
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/protocol"
 	ma "github.com/multiformats/go-multiaddr"
 
 	"github.com/filecoin-project/go-state-types/crypto"
@@ -54,6 +56,12 @@ type StorageReceiver interface {
 	HandleDealStatusStream(DealStatusStream)
 }
 
+type StreamWithProtocol interface {
+	io.ReadWriteCloser
+	Protocol() protocol.ID
+	SetProtocol(id protocol.ID)
+}
+
 // StorageMarketNetwork is a network abstraction for the storage market
 type StorageMarketNetwork interface {
 	NewAskStream(context.Context, peer.ID, bool) (StorageAskStream, error)
@@ -62,7 +70,7 @@ type StorageMarketNetwork interface {
 	SetDelegate(StorageReceiver) error
 	StopHandlingRequests() error
 	ID() peer.ID
-	AddAddrs(peer.ID, []ma.Multiaddr, bool)
+	AddAddrs(peer.ID, []ma.Multiaddr)
 
 	PeerTagger
 }

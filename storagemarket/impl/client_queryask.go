@@ -48,7 +48,7 @@ func (c *Client) GetAsk(ctx context.Context, info storagemarket.StorageProviderI
 	fmt.Printf("Jim GetAsk info %v\n", info)
 	fmt.Printf("Jim GetAsk addr %v\n", info.Addrs[0].String())
 	if len(info.Addrs) > 0 {
-		c.net.AddAddrs(info.PeerID, info.Addrs, info.UseDaemon)
+		c.net.AddAddrs(info.PeerID, info.Addrs)
 	}
 	s, err := c.net.NewAskStream(ctx, info.PeerID, info.UseDaemon)
 	if err != nil {

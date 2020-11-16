@@ -3,6 +3,8 @@ package network
 import (
 	"bufio"
 	"context"
+	"fmt"
+	"io"
 	"time"
 
 	logging "github.com/ipfs/go-log/v2"
@@ -26,6 +28,18 @@ var log = logging.Logger("storagemarket_network")
 
 // Option is an option for configuring the libp2p storage market network
 type Option func(*libp2pStorageMarketNetwork)
+
+type streamWithProtocol struct {
+	io.ReadWriteCloser
+}
+
+func (s streamWithProtocol) Protocol() protocol.ID {
+	return "123" // FIXME
+}
+
+func (s streamWithProtocol) SetProtocol(id protocol.ID) {
+	// FIXME
+}
 
 // RetryParameters changes the default parameters around connection reopening
 func RetryParameters(minDuration time.Duration, maxDuration time.Duration, attempts float64) Option {
@@ -100,7 +114,7 @@ type libp2pStorageMarketNetwork struct {
 }
 
 func (impl *libp2pStorageMarketNetwork) NewAskStream(ctx context.Context, id peer.ID, useDaemon bool) (StorageAskStream, error) {
-	s, err := impl.openStream(ctx, id, impl.supportedAskProtocols)
+	s, err := impl.openStream(ctx, id, impl.supportedAskProtocols, useDaemon)
 	if err != nil {
 		log.Warn(err)
 		return nil, err
@@ -113,7 +127,7 @@ func (impl *libp2pStorageMarketNetwork) NewAskStream(ctx context.Context, id pee
 }
 
 func (impl *libp2pStorageMarketNetwork) NewDealStream(ctx context.Context, id peer.ID) (StorageDealStream, error) {
-	s, err := impl.openStream(ctx, id, impl.supportedDealProtocols)
+	s, err := impl.openStream(ctx, id, impl.supportedDealProtocols, false) // FIXME
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +139,7 @@ func (impl *libp2pStorageMarketNetwork) NewDealStream(ctx context.Context, id pe
 }
 
 func (impl *libp2pStorageMarketNetwork) NewDealStatusStream(ctx context.Context, id peer.ID) (DealStatusStream, error) {
-	s, err := impl.openStream(ctx, id, impl.supportedDealStatusProtocols)
+	s, err := impl.openStream(ctx, id, impl.supportedDealStatusProtocols, false) // FIXME
 	if err != nil {
 		log.Warn(err)
 		return nil, err
@@ -137,7 +151,8 @@ func (impl *libp2pStorageMarketNetwork) NewDealStatusStream(ctx context.Context,
 	return &dealStatusStream{p: id, rw: s, buffered: buffered}, nil
 }
 
-func (impl *libp2pStorageMarketNetwork) openStream(ctx context.Context, id peer.ID, protocols []protocol.ID) (network.Stream, error) {
+// func (impl *libp2pStorageMarketNetwork) openStream(ctx context.Context, id peer.ID, protocols []protocol.ID, useDaemon bool) (network.Stream, error) {
+func (impl *libp2pStorageMarketNetwork) openStream(ctx context.Context, id peer.ID, protocols []protocol.ID, useDaemon bool) (StreamWithProtocol, error) {
 	b := &backoff.Backoff{
 		Min:    impl.minAttemptDuration,
 		Max:    impl.maxAttemptDuration,
@@ -146,9 +161,29 @@ func (impl *libp2pStorageMarketNetwork) openStream(ctx context.Context, id peer.
 	}
 
 	for {
-		s, err := impl.host.NewStream(ctx, id, protocols...)
-		if err == nil {
-			return s, err
+		var s StreamWithProtocol
+		var err error
+		if !useDaemon {
+			s, err = impl.host.NewStream(ctx, id, protocols...)
+			if err == nil {
+				return s, err
+			}
+		} else {
+			addrs := impl.host.Peerstore().Addrs(id)
+			err = impl.p2pclientNode.Connect(id, addrs)
+			if err != nil {
+				return nil, err
+			}
+			protocolStrings := make([]string, 0)
+			for _, p := range protocols {
+				protocolStrings = append(protocolStrings, string(p))
+			}
+			sinfo, sdaemon, err := impl.p2pclientNode.NewStream(id, protocolStrings)
+			fmt.Printf("Jim go-fil-markets libp2p_impl openStream %v\n", sinfo)
+			s = streamWithProtocol{sdaemon}
+			if err == nil {
+				return s, err
+			}
 		}
 
 		nAttempts := b.Attempt()
@@ -245,7 +280,7 @@ func (impl *libp2pStorageMarketNetwork) ID() peer.ID {
 	return impl.host.ID()
 }
 
-func (impl *libp2pStorageMarketNetwork) AddAddrs(p peer.ID, addrs []ma.Multiaddr, useDaemon bool) {
+func (impl *libp2pStorageMarketNetwork) AddAddrs(p peer.ID, addrs []ma.Multiaddr) {
 	impl.host.Peerstore().AddAddrs(p, addrs, 8*time.Hour)
 }
 

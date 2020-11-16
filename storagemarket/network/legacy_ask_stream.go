@@ -3,8 +3,8 @@ package network
 import (
 	"bufio"
 	"context"
+	"io"
 
-	"github.com/libp2p/go-libp2p-core/mux"
 	"github.com/libp2p/go-libp2p-core/peer"
 
 	cborutil "github.com/filecoin-project/go-cbor-util"
@@ -15,7 +15,7 @@ import (
 
 type legacyAskStream struct {
 	p        peer.ID
-	rw       mux.MuxedStream
+	rw       io.ReadWriteCloser
 	buffered *bufio.Reader
 }
 
