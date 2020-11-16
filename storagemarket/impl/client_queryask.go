@@ -48,9 +48,9 @@ func (c *Client) GetAsk(ctx context.Context, info storagemarket.StorageProviderI
 	fmt.Printf("Jim GetAsk info %v\n", info)
 	fmt.Printf("Jim GetAsk addr %v\n", info.Addrs[0].String())
 	if len(info.Addrs) > 0 {
-		c.net.AddAddrs(info.PeerID, info.Addrs)
+		c.net.AddAddrs(info.PeerID, info.Addrs, info.UseDaemon)
 	}
-	s, err := c.net.NewAskStream(ctx, info.PeerID)
+	s, err := c.net.NewAskStream(ctx, info.PeerID, info.UseDaemon)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to open stream to miner: %w", err)
 	}

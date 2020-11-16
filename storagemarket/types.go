@@ -138,6 +138,7 @@ type StorageProviderInfo struct {
 	SectorSize uint64
 	PeerID     peer.ID
 	Addrs      []ma.Multiaddr
+	UseDaemon  bool
 }
 
 // ProposeStorageDealResult returns the result for a proposing a deal

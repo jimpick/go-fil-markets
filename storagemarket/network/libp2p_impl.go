@@ -11,6 +11,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/libp2p/go-libp2p-core/protocol"
+	"github.com/libp2p/go-libp2p-daemon/p2pclient"
 	ma "github.com/multiformats/go-multiaddr"
 	"golang.org/x/xerrors"
 
@@ -57,9 +58,10 @@ func SupportedDealStatusProtocols(supportedProtocols []protocol.ID) Option {
 }
 
 // NewFromLibp2pHost builds a storage market network on top of libp2p
-func NewFromLibp2pHost(h host.Host, options ...Option) StorageMarketNetwork {
+func NewFromLibp2pHost(h host.Host, p2pclientNode *p2pclient.Client, options ...Option) StorageMarketNetwork {
 	impl := &libp2pStorageMarketNetwork{
 		host:                  h,
+		p2pclientNode:         p2pclientNode,
 		maxStreamOpenAttempts: defaultMaxStreamOpenAttempts,
 		minAttemptDuration:    defaultMinAttemptDuration,
 		maxAttemptDuration:    defaultMaxAttemptDuration,
@@ -85,7 +87,8 @@ func NewFromLibp2pHost(h host.Host, options ...Option) StorageMarketNetwork {
 // libp2pStorageMarketNetwork transforms the libp2p host interface, which sends and receives
 // NetMessage objects, into the graphsync network interface.
 type libp2pStorageMarketNetwork struct {
-	host host.Host
+	host          host.Host
+	p2pclientNode *p2pclient.Client
 	// inbound messages from the network are forwarded to the receiver
 	receiver                     StorageReceiver
 	maxStreamOpenAttempts        float64
@@ -96,7 +99,7 @@ type libp2pStorageMarketNetwork struct {
 	supportedDealStatusProtocols []protocol.ID
 }
 
-func (impl *libp2pStorageMarketNetwork) NewAskStream(ctx context.Context, id peer.ID) (StorageAskStream, error) {
+func (impl *libp2pStorageMarketNetwork) NewAskStream(ctx context.Context, id peer.ID, useDaemon bool) (StorageAskStream, error) {
 	s, err := impl.openStream(ctx, id, impl.supportedAskProtocols)
 	if err != nil {
 		log.Warn(err)
@@ -242,7 +245,7 @@ func (impl *libp2pStorageMarketNetwork) ID() peer.ID {
 	return impl.host.ID()
 }
 
-func (impl *libp2pStorageMarketNetwork) AddAddrs(p peer.ID, addrs []ma.Multiaddr) {
+func (impl *libp2pStorageMarketNetwork) AddAddrs(p peer.ID, addrs []ma.Multiaddr, useDaemon bool) {
 	impl.host.Peerstore().AddAddrs(p, addrs, 8*time.Hour)
 }
 

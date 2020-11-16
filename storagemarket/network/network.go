@@ -56,13 +56,13 @@ type StorageReceiver interface {
 
 // StorageMarketNetwork is a network abstraction for the storage market
 type StorageMarketNetwork interface {
-	NewAskStream(context.Context, peer.ID) (StorageAskStream, error)
+	NewAskStream(context.Context, peer.ID, bool) (StorageAskStream, error)
 	NewDealStream(context.Context, peer.ID) (StorageDealStream, error)
 	NewDealStatusStream(context.Context, peer.ID) (DealStatusStream, error)
 	SetDelegate(StorageReceiver) error
 	StopHandlingRequests() error
 	ID() peer.ID
-	AddAddrs(peer.ID, []ma.Multiaddr)
+	AddAddrs(peer.ID, []ma.Multiaddr, bool)
 
 	PeerTagger
 }
