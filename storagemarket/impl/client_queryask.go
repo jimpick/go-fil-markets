@@ -1,3 +1,5 @@
+// +build clientqueryask
+
 package storageimpl
 
 import (

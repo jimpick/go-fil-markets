@@ -1,5 +1,3 @@
-// +build ignore
-
 package clientstates_test
 
 import (
