@@ -1,5 +1,3 @@
-// +build ignore
-
 package dtutils_test
 
 import (

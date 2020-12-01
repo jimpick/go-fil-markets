@@ -1,5 +1,3 @@
-// +build ignore
-
 package network_test
 
 import (
