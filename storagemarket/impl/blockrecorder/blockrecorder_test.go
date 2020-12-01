@@ -1,5 +1,3 @@
-// +build ignore
-
 package blockrecorder_test
 
 import (
