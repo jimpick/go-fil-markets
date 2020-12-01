@@ -1,5 +1,3 @@
-// +build ignore
-
 package providerutils_test
 
 import (
