@@ -5,7 +5,7 @@ import (
 	"github.com/filecoin-project/go-ds-versioning/pkg/versioned"
 
 	"github.com/filecoin-project/go-fil-markets/discovery"
-	retrievalmarket "github.com/filecoin-project/go-fil-markets/retrievalmarket/apitypes"
+	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
 	"github.com/filecoin-project/go-fil-markets/retrievalmarket/migrations"
 )
 
