@@ -2,6 +2,7 @@ package clientstates
 
 import (
 	"context"
+	"fmt"
 
 	peer "github.com/libp2p/go-libp2p-core/peer"
 
@@ -27,6 +28,7 @@ type ClientDealEnvironment interface {
 // ProposeDeal sends the proposal to the other party
 func ProposeDeal(ctx fsm.Context, environment ClientDealEnvironment, deal rm.ClientDealState) error {
 	legacy := deal.Status == rm.DealStatusRetryLegacy
+	fmt.Printf("go-fil-markets ProposeDeal %v %v\n", deal.Sender, deal.DealProposal)
 	channelID, err := environment.OpenDataTransfer(ctx.Context(), deal.Sender, &deal.DealProposal, legacy)
 	if err != nil {
 		return ctx.Trigger(rm.ClientEventWriteDealProposalErrored, err)

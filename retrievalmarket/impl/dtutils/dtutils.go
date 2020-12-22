@@ -30,6 +30,7 @@ const noProviderEvent = rm.ProviderEvent(math.MaxUint64)
 func providerEvent(event datatransfer.Event, channelState datatransfer.ChannelState) (rm.ProviderEvent, []interface{}) {
 	switch event.Code {
 	case datatransfer.Accept:
+		fmt.Printf("Jim dtutils ProvedEventDealAccepted\n")
 		return rm.ProviderEventDealAccepted, []interface{}{channelState.ChannelID()}
 	case datatransfer.Disconnected:
 		return rm.ProviderEventDataTransferError, []interface{}{fmt.Errorf("deal data transfer stalled (peer hungup)")}
@@ -82,6 +83,7 @@ func clientEventForResponse(response *rm.DealResponse) (rm.ClientEvent, []interf
 	case rm.DealStatusDealNotFound:
 		return rm.ClientEventDealNotFound, []interface{}{response.Message}
 	case rm.DealStatusAccepted:
+		fmt.Printf("Jim dtutils ClientEventDealAccepted\n")
 		return rm.ClientEventDealAccepted, nil
 	case rm.DealStatusFundsNeededUnseal:
 		return rm.ClientEventUnsealPaymentRequested, []interface{}{response.PaymentOwed}
@@ -133,6 +135,7 @@ func clientEvent(event datatransfer.Event, channelState datatransfer.ChannelStat
 // an event to the appropriate state machine
 func ClientDataTransferSubscriber(deals EventReceiver) datatransfer.Subscriber {
 	return func(event datatransfer.Event, channelState datatransfer.ChannelState) {
+		fmt.Printf("Jim dtutils ClientDataTransferSubscriber event %v %v\n", datatransfer.Events[event.Code], event)
 		dealProposal, ok := dealProposalFromVoucher(channelState.Voucher())
 
 		// if this event is for a transfer not related to retrieval, ignore
