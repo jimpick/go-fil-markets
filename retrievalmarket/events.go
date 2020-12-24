@@ -114,6 +114,9 @@ const (
 
 	// ClientEventCancel runs when a user cancels a deal
 	ClientEventCancel
+
+	// ClientEventFileDeposited is a synthetic event sent by the client when it has received a file and saved it
+	ClientEventFileDeposited
 )
 
 // ClientEvents is a human readable map of client event name -> event description
@@ -152,6 +155,7 @@ var ClientEvents = map[ClientEvent]string{
 	ClientEventVoucherShortfall:              "ClientEventVoucherShortfall",
 	ClientEventRecheckFunds:                  "ClientEventRecheckFunds",
 	ClientEventCancel:                        "ClientEventCancel",
+	ClientEventFileDeposited:                 "ClientEventFileDeposited",
 }
 
 // ProviderEvent is an event that occurs in a deal lifecycle on the provider
